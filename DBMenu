@@ -1,0 +1,255 @@
+#! /usr/bin/bash
+
+#				DataBase Menu (Level 2)
+
+function create {
+#User Experience feature
+echo "====================="
+echo "Table names that you have are: "
+echo ""
+echo ""
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "Please type a different table name"
+echo "====================="
+read Table_Name
+echo "====================="
+#number of columns
+echo "Please type the number of columns"
+typeset -i col_num
+read col_num
+echo $col_num >> ${Table_Name}
+echo "====================="
+
+#names of columns
+echo "Please type the column names"
+echo "====================="
+row=""
+typeset -i current 
+current=0
+while [ $current -lt $col_num ]
+do
+read col_name
+row+="${col_name},"
+ current+=1
+done
+touch ~/${Table_Name}
+echo $row >> ${Table_Name}
+
+echo "Table is created successfully!"
+echo "====================="
+echo "Choose another action ..!"
+echo "====================="
+print_options
+echo ""
+}
+
+function select_from_table {
+#listing table names: 
+echo "Table names that you have are: "
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "====================="
+########
+
+
+#requesting inputs to get the data
+echo "Please type the Table name"
+read Table_Name
+
+echo "Please enter the keyword that you want the data with"
+read key
+
+#displaying:
+#displayed_data="sed "/${key}/p" "${Table_Name}""
+sed -n "/${key}/p" "${Table_Name}"
+
+echo ""
+
+}
+
+function select_all_from_table {
+#listing table names: 
+echo "Table names that you have are: "
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "====================="
+########
+
+
+#requesting inputs to get the data
+echo "Please type the Table name"
+
+read Table_Name
+
+#displaying:
+#displayed_data="sed "/${key}/p" "${Table_Name}""
+column "${Table_Name}" | sed 1d ${Table_Name}
+#echo "${displayed_data}"
+
+
+}
+
+function delete_from_table {
+#listing table names: 
+echo "Table names that you have are: "
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "====================="
+########
+
+
+#requesting inputs to get the data
+echo "Please type the Table name"
+read Table_Name
+
+echo "Please enter the keyword to delete the row contains it"
+read key
+
+#displaying:
+#displayed_data="sed "/${key}/p" "${Table_Name}""
+sed -i "/${key}/d" "${Table_Name}"
+
+echo "Row is successfully deleted!"
+echo "The table's content after deleting is :"
+cat $Table_Name
+
+}
+
+
+function insert {
+#listing table names: 
+echo "Table names that you have are: "
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "====================="
+########
+
+#name request
+echo "Please type the Table name"
+read Table_Name
+
+#read firts line (contains the num. of columns)
+
+columns_number=`sed -n '1p' "${Table_Name}"`
+
+#Records:
+echo "Your record shoud be ${columns_number} cells"
+#						add format
+row=""
+typeset -i current 
+current=0
+while [[ $current -lt $columns_number ]]
+do
+read record
+row+="${record}.."
+ current+=1
+done
+
+echo $row >> ${Table_Name}
+echo "============================================ "
+echo "The  << ${Table_Name} >> table content after updates is: "
+cat ${Table_Name} 
+echo ""
+echo "Choose another action ..!"
+
+} 
+
+
+
+select action in "Create Table" "List Tables Names" "Insert in Table" "Drop Table" "Select From Table" "Delete From Table" "Back to main menu!"
+
+do
+
+case $action in 
+
+#================= 1) Creating tables (DONE)
+"Create Table")
+create
+;;
+
+
+# 2) =======================List tables (DONE)
+"List Tables Names")
+echo "Table names that you have are: "
+#list them here
+ls | sed s#/##
+echo ""
+echo "Those are all of the tables you've"
+echo "Choose another action ..!"
+echo "====================="
+;;
+
+
+# 3) ======================Insert in Table:
+"Insert in Table")
+
+insert ${Table_Name}
+;;
+
+# 4) ========================= Dropping a table: (DONE)
+"Drop Table")
+
+echo "Please enter name of the table to be dropped"
+read Table_Name
+#drop it here, by deleting the file
+
+rm ${Table_Name}
+echo "Table ${Table_Name} is successfully dropped! "
+echo "The currently existing tables are: "
+ls -d */ | sed s#/##
+echo ""
+echo "Choose another action ..!"
+
+;;
+
+# 5)  ========================== Select from Table:
+
+"Select From Table")
+select option in "select all from table" "select a row" "Back to previous menu!"
+do
+case $option in
+"select all from table")
+select_all_from_table
+;;
+
+"select a row")
+select_from_table
+;;
+
+"Back to previous menu!")
+
+. ../DBMenu
+break;
+;;
+esac 
+done
+
+
+;;
+# 6) ========================== Delete from table: 
+
+"Delete From Table")
+delete_from_table
+;;
+
+# 7)  =========================== Back to main menu:
+
+"Back to main menu!")
+cd ..
+. ./Main_Menu.sh
+;;
+
+esac
+
+done

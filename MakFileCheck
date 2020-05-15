@@ -1,0 +1,10 @@
+#! /bin/bash
+echo "Enter The new Data Base name"
+read DB_Name
+if [ -d "$DB_Name" ]
+then
+echo "Data Base exist!"
+else
+`mkdir $DB_Name`
+echo "Data Base created!"
+fi
